@@ -21,6 +21,3 @@ const newSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("New", newSchema);
-
-// the reason we need this model function is because when we export and import this in a different file
-// this model allows us to interact directly with the database using this schema.

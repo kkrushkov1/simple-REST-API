@@ -1,4 +1,4 @@
-const New = require("../models/new");
+const New = require("../models/topic");
 const { check, validationResult } = require("express-validator");
 
 module.exports = {
