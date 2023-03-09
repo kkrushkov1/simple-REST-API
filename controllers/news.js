@@ -15,46 +15,31 @@ module.exports = {
           match.date = new Date(req.query.date);
         }
 
-        // let sort = {};
-        // if (req.query.sortBy) {
-        //   const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
-        //   if (req.query.sortBy === "date") {
-        //     sort.date = sortOrder;
-        //   } else {
-        //     sort.title =
-        //       sortOrder *
-        //       new Intl.Collator(undefined, {
-        //         sensitivity: "base",
-        //         numeric: true,
-        //       }).compare(req.query.sortBy);
-        //   }
-        // } else {
-        //   sort.title = 1;
-        // }
+        // const options = {
+        //     collation: { locale: "en_US", strength: 2 },
+        //   };
 
-        let sort = {};
+        //   const response = await New.aggregate([
+        //     { $match: match },
+        //     {
+        //       $project: {
+        //         title: 1,
+        //         title_length: { $strLenCP: "$title" },
+        //       },
+        //     },
+        //     { $sort: sort },
+        //   ]);
 
+        const sort = {};
         if (req.query.sortBy) {
-          const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
-          if (req.query.sortBy === "date") {
-            sort.date = sortOrder;
-          } else {
-            sort.title_lower = sortOrder; // use title_lower field for sorting
-          }
-        } else {
-          sort.title_lower = 1; // use title_lower field for sorting
+          sort[req.query.sortBy] = req.query.sortOrder === "desc" ? -1 : 1;
         }
 
-        const response = await New.aggregate([
-          { $match: match },
-          {
-            $addFields: {
-              title_lower: { $toLower: "$title" },
-            },
-          },
-          { $sort: sort },
-          { $project: { title_lower: 0 } }, // remove title_lower field from response
-        ]);
+        const options = {
+          collation: { locale: "en_US", strength: 2 },
+        };
+
+        const response = await New.find(match, null, options).sort(sort);
 
         res.json(response);
       } catch (err) {
