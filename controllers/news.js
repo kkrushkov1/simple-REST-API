@@ -1,4 +1,3 @@
-const mongoose = require("mongoose");
 const New = require("../models/new");
 const { check, validationResult } = require("express-validator");
 
@@ -8,38 +7,21 @@ module.exports = {
       try {
         let match = {};
         if (req.query.title) {
-          match.$or = [{ title: new RegExp(req.query.title, "i") }]; //i  is a modifier (modifies the search to be case-insensitive).
+          match.$or = [{ title: new RegExp(req.query.title, "i") }];
         }
 
         if (req.query.date) {
           match.date = new Date(req.query.date);
         }
 
-        // const options = {
-        //     collation: { locale: "en_US", strength: 2 },
-        //   };
-
-        //   const response = await New.aggregate([
-        //     { $match: match },
-        //     {
-        //       $project: {
-        //         title: 1,
-        //         title_length: { $strLenCP: "$title" },
-        //       },
-        //     },
-        //     { $sort: sort },
-        //   ]);
-
         const sort = {};
         if (req.query.sortBy) {
           sort[req.query.sortBy] = req.query.sortOrder === "desc" ? -1 : 1;
         }
 
-        const options = {
-          collation: { locale: "en_US", strength: 2 },
-        };
-
-        const response = await New.find(match, null, options).sort(sort);
+        const response = await New.find(match)
+          .collation({ locale: "en" })
+          .sort(sort);
 
         res.json(response);
       } catch (err) {
